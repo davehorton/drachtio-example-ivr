@@ -1,0 +1,29 @@
+{
+  "name": "drachtio-example-ivr",
+  "version": "1.0.0",
+  "description": "simple ivr example using drachtio-srf and drachtio-fsmrf",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davehorton/drachtio-example-ivr.git"
+  },
+  "keywords": [
+    "drachtio",
+    "sip",
+    "freeswitch"
+  ],
+  "author": "Dave Horton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/davehorton/drachtio-example-ivr/issues"
+  },
+  "homepage": "https://github.com/davehorton/drachtio-example-ivr#readme",
+  "dependencies": {
+    "drachtio": "^1.0.17",
+    "drachtio-fsmrf": "^0.102.3",
+    "drachtio-srf": "^3.0.12"
+  }
+}
