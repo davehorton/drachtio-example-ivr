@@ -1,43 +1,39 @@
-var app = require('drachtio')() ;
-var Mrf = require('drachtio-fsmrf') ;
-var mrf = new Mrf(app) ;
-var Srf = require('drachtio-srf') ;
-var srf = new Srf(app) ;
+const Srf = require('drachtio-srf') ;
+const Mrf = require('drachtio-fsmrf') ;
+const srf = new Srf() ;
+const mrf = new Mrf(srf) ;
+const config = require('config');
+const logger = require('pino')();
 
-srf.connect({
-  host: '127.0.0.1',
-  port: 9022,
-  secret: 'cymru',
-}) 
-.on('connect', (err, hostport) => { console.log(`connected to drachtio listening on ${hostport}`) ;})
-.on('error', (err) => { console.error(`Error connecting to drachtio at ${err || err.message}`) ; }) ;
+srf.connect(config.get('drachtio'))
+  .on('connect', (err, hostport) => logger.info(`connected to drachtio listening on ${hostport}`))
+  .on('error', (err) => logger.error(err, 'Error connecting to drachtio')) ;
 
-mrf.connect( {
-  address: '127.0.0.1',
-  port: 8021,
-  secret: 'ClueCon'
-}, (ms) => {
-  console.log(`connected to media server `);
+mrf.connect(config.get('freeswitch'), (ms) => {
+  logger.info(`connected to media server ${ms.address}`);
   // save the media server object as in app locals so it can be retrieved from middleware
   srf.locals.ms = ms ;
 }) ;
 
-srf.invite( (req, res) => {
-  
-  // connect caller to an endpoint on the media server
-  req.app.locals.ms.connectCaller(req, res, {
-    codecs: ['PCMU']
-  }, (err, ep, dialog) => {
-    if( err ) { throw err ; }
+srf.invite((req, res) => {
+  const ms = req.app.locals.ms;
 
-    // set up dialog handlers
-    dialog.on('destroy', () => { ep.destroy() ; }) ;
+  if (!ms) return res.send(500);
+
+  // connect caller to an endpoint on the media server
+  ms.connectCaller(req, res, {
+    codecs: ['PCMU']
+  }, (err, ep, dlg) => {
+    if (err) throw err ;
+
+    // release endpoint when caller hangs up
+    dlg.on('destroy', () => ep.destroy()) ;
 
     // play some prompts
     ep.play(['ivr/8000/ivr-please_reenter_your_pin.wav',
       'ivr/8000/ivr-please_state_your_name_and_reason_for_calling.wav',
-      'ivr/8000/ivr-you_lose.wav'], function(err, results){
-        console.log(`results: ${JSON.stringify(results)}`) ;
-      }) ;
-  }) ; 
+      'ivr/8000/ivr-you_lose.wav'], (err, results) => {
+      logger.info(results, 'completed playing prompts') ;
+    }) ;
+  }) ;
 }) ;

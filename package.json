@@ -22,8 +22,9 @@
   },
   "homepage": "https://github.com/davehorton/drachtio-example-ivr#readme",
   "dependencies": {
-    "drachtio": "^1.0.17",
-    "drachtio-fsmrf": "^0.102.3",
-    "drachtio-srf": "^3.0.12"
+    "config": "^2.0.1",
+    "drachtio-fsmrf": "^1.1.4",
+    "drachtio-srf": "^4.3.4",
+    "pino": "^4.17.6"
   }
 }
